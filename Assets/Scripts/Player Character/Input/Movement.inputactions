@@ -18,6 +18,17 @@
             ],
             "bindings": [
                 {
+                    "name": "",
+                    "id": "ec20c41b-89cf-4407-ba91-7963332dd7cc",
+                    "path": "<Gamepad>/leftStick",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Move",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
                     "name": "WASD Movement",
                     "id": "3d99b339-aa2e-4183-8443-313fb94e6723",
                     "path": "2DVector",
