@@ -5,7 +5,7 @@ using Unity.Cinemachine;
 
 public class CameraManager : MonoBehaviour
 {
-    public List<GameObject> players;
+    public List<player> players;
     [SerializeField] private CinemachineCamera cam;
     private GameObject frontPlayer;
 
@@ -13,19 +13,25 @@ public class CameraManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (frontPlayer == null && players[0] != null)
+        if (frontPlayer == null && players[0].refrence != null)
         {
-            frontPlayer = players[0].gameObject;
+            frontPlayer = players[0].refrence;
         }
 
         for (int i = 0; i < players.Count; i++)
         {
-            if (players[i].transform.position.x > frontPlayer.transform.position.x)
+            if (players[i].refrence.transform.position.x > frontPlayer.transform.position.x)
             {
-                frontPlayer = players[i];
+                frontPlayer = players[i].refrence;
             }
         }
 
         cam.Follow = frontPlayer.transform;
+    }
+
+    public struct player
+    {
+        public GameObject refrence;
+        public int placement;
     }
 }
