@@ -28,7 +28,7 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private float jumpHeight = 0f;
     [SerializeField] private float gravity = -9.81f;
 
-    [SerializeField] private float speed;
+    [SerializeField] private float speed = 5f;
 
 
 
@@ -62,7 +62,7 @@ public class PlayerMovement : MonoBehaviour
     private void Update()
     {
         characterController.Move(direction * speed * Time.deltaTime);
-        handleMovement();
+       // handleMovement();
     }
 
 

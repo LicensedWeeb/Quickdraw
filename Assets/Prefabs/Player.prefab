@@ -208,6 +208,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 52429d15f26135e43b21d7af4e75e003, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerMovement
+  minSpeed: 0
+  maxSpeed: 0
+  acceleration: 0
+  deceleration: 0
+  jumpHeight: 0
+  gravity: 0
   speed: 5
 --- !u!143 &3377090713526599342
 CharacterController:
