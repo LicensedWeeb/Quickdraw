@@ -1,3 +1,4 @@
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -5,6 +6,10 @@ using UnityEngine.InputSystem;
 
 public class PlayerMovement : MonoBehaviour
 {
+    //other scripts
+    private CameraManager cameraManager;
+
+    [Header("Movement")]
     private Vector2 Input;
     private CharacterController characterController;
     private Vector3 direction;
@@ -14,6 +19,9 @@ public class PlayerMovement : MonoBehaviour
     private void Awake()
     {
         characterController = GetComponent<CharacterController>();
+        cameraManager = GameObject.Find("CameraManager").GetComponent<CameraManager>();
+
+        cameraManager.players.Add(gameObject);
     }
 
     private void Update()
