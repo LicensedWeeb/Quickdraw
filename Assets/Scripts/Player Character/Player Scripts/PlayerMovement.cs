@@ -38,7 +38,7 @@ public class PlayerMovement : MonoBehaviour
         characterController = GetComponent<CharacterController>();
         cameraManager = GameObject.Find("CameraManager").GetComponent<CameraManager>();
 
-        cameraManager.players.Add(gameObject);
+        cameraManager.AddPlayer(gameObject);
     }
 
     //Performed by Unity Input System

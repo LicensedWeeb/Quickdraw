@@ -17,20 +17,34 @@ public class CameraManager : MonoBehaviour
         {
             frontPlayer = players[0].refrence;
         }
-
-        for (int i = 0; i < players.Count; i++)
+        else
         {
-            if (players[i].refrence.transform.position.x > frontPlayer.transform.position.x)
+            for (int i = 0; i < players.Count; i++)
             {
-                frontPlayer = players[i].refrence;
+                if (players[i].refrence.transform.position.x > frontPlayer.transform.position.x)
+                {
+                    frontPlayer = players[i].refrence;
+                }
             }
         }
 
         cam.Follow = frontPlayer.transform;
     }
 
-    public struct player
+    public void AddPlayer(GameObject passedPlayer)
     {
+        player newPlayer = new player(passedPlayer, 0);
+        players.Add(newPlayer);
+    }
+
+    [System.Serializable] public struct player
+    {
+        public player(GameObject passedPlayer, int passedPlace)
+        {
+            this.refrence = passedPlayer;
+            this.placement = passedPlace;
+        }
+
         public GameObject refrence;
         public int placement;
     }
