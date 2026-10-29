@@ -12,6 +12,7 @@ public class WallOfDeath : MonoBehaviour
         StartLoc = transform.position;
     }
 
+
     // Update is called once per frame
     void FixedUpdate()
     {
@@ -22,6 +23,14 @@ public class WallOfDeath : MonoBehaviour
         else
         {
             transform.position += transform.forward * movementSpeed * Time.deltaTime;
+        }
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.CompareTag("Player"))
+        {
+            Destroy(other.gameObject);
         }
     }
 }
