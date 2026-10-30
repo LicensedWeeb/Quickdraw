@@ -207,6 +207,22 @@ MonoBehaviour:
         m_CallState: 2
     m_ActionId: 9df5d284-6851-428f-ab3f-6342076c2054
     m_ActionName: 'Gameplay/Jump[/Keyboard/space]'
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 1493495240809986087}
+        m_TargetAssemblyTypeName: PlayerMovement, Assembly-CSharp
+        m_MethodName: sprint
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: e0db3ee8-0aee-4d8a-885d-6bc4a4a16f85
+    m_ActionName: 'Gameplay/Sprint[/Keyboard/leftShift]'
   m_NeverAutoSwitchControlSchemes: 0
   m_DefaultControlScheme: 
   m_DefaultActionMap: Gameplay
@@ -228,7 +244,14 @@ MonoBehaviour:
   gravityMultiplier: 1
   velocity: 0
   jumpPower: 5
+  maxJumps: 2
   speed: 5
+  movement:
+    speed: 5
+    multiplier: 2
+    acceleration: 20
+    isSprinting: 0
+    currentSpeed: 0
 --- !u!143 &3377090713526599342
 CharacterController:
   m_ObjectHideFlags: 0
@@ -279,5 +302,5 @@ Rigidbody:
   m_UseGravity: 1
   m_IsKinematic: 0
   m_Interpolate: 0
-  m_Constraints: 112
+  m_Constraints: 120
   m_CollisionDetection: 0

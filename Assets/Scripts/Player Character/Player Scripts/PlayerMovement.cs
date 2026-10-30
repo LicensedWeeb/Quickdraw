@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Threading;
 using Unity.Hierarchy;
@@ -26,7 +27,7 @@ public class PlayerMovement : MonoBehaviour
 
     [SerializeField] private float speed = 5f;
 
-
+    [SerializeField] private Movement movement;
 
 
     private void Awake()
@@ -38,6 +39,7 @@ public class PlayerMovement : MonoBehaviour
     }
     private void Update()
     {
+        
         applyGravity();
         applyMovement();
     }
@@ -52,7 +54,10 @@ public class PlayerMovement : MonoBehaviour
 
     private void applyMovement()
     {
-        characterController.Move(direction * speed * Time.deltaTime);
+        var targetSpeed = movement.isSprinting ? movement.speed * movement.multiplier : movement.speed;
+        movement.currentSpeed = Mathf.MoveTowards(movement.currentSpeed, targetSpeed, movement.acceleration * Time.deltaTime);
+        
+        characterController.Move(direction * movement.currentSpeed * Time.deltaTime);
     }
 
     private void applyGravity()
@@ -85,6 +90,11 @@ public class PlayerMovement : MonoBehaviour
        
     }
 
+    public void sprint(InputAction.CallbackContext context)
+    {
+        movement.isSprinting = context.started || context.performed;
+    }
+
     private IEnumerator resetJumps()
     {
         yield return new WaitUntil(() => !isGrounded());
@@ -95,6 +105,17 @@ public class PlayerMovement : MonoBehaviour
 
     private bool isGrounded() => characterController.isGrounded;
 
+    [Serializable]
+    public struct Movement
+    {
+        public float speed;
+        public float multiplier;
+        public float acceleration;
+
+        public bool isSprinting;
+        public float currentSpeed;
+
+    }
 
 }
 
