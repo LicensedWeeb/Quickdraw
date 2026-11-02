@@ -223,6 +223,22 @@ MonoBehaviour:
         m_CallState: 2
     m_ActionId: e0db3ee8-0aee-4d8a-885d-6bc4a4a16f85
     m_ActionName: 'Gameplay/Sprint[/Keyboard/leftShift]'
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 1493495240809986087}
+        m_TargetAssemblyTypeName: PlayerMovement, Assembly-CSharp
+        m_MethodName: slide
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: 62b2a94f-c708-4ed5-af97-0d7f02c42cd6
+    m_ActionName: 'Gameplay/Slide[/Keyboard/leftCtrl]'
   m_NeverAutoSwitchControlSchemes: 0
   m_DefaultControlScheme: 
   m_DefaultActionMap: Gameplay
@@ -252,6 +268,12 @@ MonoBehaviour:
     acceleration: 20
     isSprinting: 0
     currentSpeed: 0
+  heldItem: {fileID: 0}
+  slideSpeed: 3
+  maxSlideTime: 1
+  slideTimer: 0
+  playerObj: {fileID: 6548471595299457463}
+  slideYScale: 0.5
 --- !u!143 &3377090713526599342
 CharacterController:
   m_ObjectHideFlags: 0

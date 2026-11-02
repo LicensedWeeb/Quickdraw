@@ -3,6 +3,7 @@ using System.Collections;
 using System.Threading;
 using Unity.Hierarchy;
 using Unity.VisualScripting;
+using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.Serialization;
@@ -21,7 +22,10 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private float gravity = -9.81f;
     [SerializeField] private float gravityMultiplier = 2f;
     [SerializeField] private float velocity = 0f;
+
+    [Header("Jump Variables")]
     [SerializeField] private float jumpPower = 2f;
+
     private int numberofJumps = 0;
     [SerializeField] private int maxJumps = 2;
 
@@ -30,6 +34,18 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private Movement movement;
 
     [SerializeField] private GameObject heldItem;
+
+    [Header ("Slide Variables")]
+    [SerializeField] private float slideSpeed = 3f;
+    [SerializeField] private float maxSlideTime = 1f;
+    [SerializeField] private float slideTimer = 0f;
+    [SerializeField] private Transform playerObj;
+
+
+    public float slideYScale = 0.5f;
+    private float startYScale = 1f;
+
+
 
 
     private void Awake()
@@ -95,6 +111,27 @@ public class PlayerMovement : MonoBehaviour
     public void sprint(InputAction.CallbackContext context)
     {
         movement.isSprinting = context.started || context.performed;
+    }
+
+    public void slide(InputAction.CallbackContext context)
+    {
+        if (!context.started) return;
+        Debug.Log("Sliding");
+        
+        if(slideTimer < maxSlideTime)
+        {
+            slideTimer += Time.deltaTime;
+            playerObj.localScale = new Vector3(playerObj.localScale.x, slideYScale, playerObj.localScale.z);
+            characterController.Move(direction * movement.currentSpeed * slideSpeed * Time.deltaTime);
+        }
+        else
+        {
+            slideTimer = 0f;
+            playerObj.localScale = new Vector3(playerObj.localScale.x, startYScale, playerObj.localScale.z);
+            Debug.Log("Stop Sliding");
+        }
+       
+      
     }
 
     private IEnumerator resetJumps()
