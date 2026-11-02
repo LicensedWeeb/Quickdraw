@@ -15,6 +15,7 @@ using UnityEngine;
 public class GenerateRandomItem : MonoBehaviour
 {
     [SerializeField] private RandomItemSettings[] ItemArray = new RandomItemSettings[] { };
+    [SerializeField] private GameObject PlayerPrefab;
     int ItemChanceCount = 0;
     
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -40,7 +41,7 @@ public class GenerateRandomItem : MonoBehaviour
                    RandNum -= ItemArray[i].ChanceToGet;
                     if(RandNum <= 0)
                     {
-                        RandNum = i;
+                        RandNum = i;    // Replace with setting player item
                         break;
                     }   
                 }
