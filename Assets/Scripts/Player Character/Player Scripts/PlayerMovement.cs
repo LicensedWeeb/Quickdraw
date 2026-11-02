@@ -29,6 +29,8 @@ public class PlayerMovement : MonoBehaviour
 
     [SerializeField] private Movement movement;
 
+    [SerializeField] private GameObject heldItem;
+
 
     private void Awake()
     {
