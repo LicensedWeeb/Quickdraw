@@ -1,8 +1,12 @@
+using System;
+using System.Collections;
 using System.Threading;
 using Unity.Hierarchy;
 using Unity.VisualScripting;
+using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.Serialization;
 
 [RequireComponent(typeof(CharacterController))]
 
@@ -15,20 +19,31 @@ public class PlayerMovement : MonoBehaviour
     private Vector2 Input;
     private CharacterController characterController;
     private Vector3 direction;
-    private Vector3 velocity;
-    private float verticalVelocity;
-    private bool isSprinting;
-    private bool jumpPressed;
-
-    [Header("PlayerMovementSettings")]
-    [SerializeField] private float minSpeed = 0f;
-    [SerializeField] private float maxSpeed = 10f;
-    [SerializeField] private float acceleration = 5f;
-    [SerializeField] private float deceleration = 2f;
-    [SerializeField] private float jumpHeight = 0f;
     [SerializeField] private float gravity = -9.81f;
+    [SerializeField] private float gravityMultiplier = 2f;
+    [SerializeField] private float velocity = 0f;
+
+    [Header("Jump Variables")]
+    [SerializeField] private float jumpPower = 2f;
+
+    private int numberofJumps = 0;
+    [SerializeField] private int maxJumps = 2;
 
     [SerializeField] private float speed = 5f;
+
+    [SerializeField] private Movement movement;
+
+    [SerializeField] private GameObject heldItem;
+
+    [Header ("Slide Variables")]
+    [SerializeField] private float slideSpeed = 3f;
+    [SerializeField] private float maxSlideTime = 1f;
+    [SerializeField] private float slideTimer = 0f;
+    [SerializeField] private Transform playerObj;
+
+
+    public float slideYScale = 0.5f;
+    private float startYScale = 1f;
 
 
 
@@ -40,29 +55,11 @@ public class PlayerMovement : MonoBehaviour
 
         cameraManager.AddPlayer(gameObject);
     }
-
-    //Performed by Unity Input System
-    public void onMove(InputAction.CallbackContext context)
-    {
-        Input = context.ReadValue<Vector2>();
-    }
-
-    public void onSprint(InputAction.CallbackContext context)
-    {
-        isSprinting = context.performed;
-    }
-
-    public void onJump(InputAction.CallbackContext context)
-    {
-        if (context.performed)
-        {
-            jumpPressed = true;
-        }
-    }
     private void Update()
     {
-        characterController.Move(direction * speed * Time.deltaTime);
-       // handleMovement();
+        
+        applyGravity();
+        applyMovement();
     }
 
 
@@ -73,38 +70,91 @@ public class PlayerMovement : MonoBehaviour
 
     }
 
-    private void handleMovement()
+    private void applyMovement()
     {
-        float targetSpeed = isSprinting ? minSpeed : maxSpeed;
-        Vector3 inputDirection = (transform.forward * Input.y + transform.right * Input.x);
+        var targetSpeed = movement.isSprinting ? movement.speed * movement.multiplier : movement.speed;
+        movement.currentSpeed = Mathf.MoveTowards(movement.currentSpeed, targetSpeed, movement.acceleration * Time.deltaTime);
+        
+        characterController.Move(direction * movement.currentSpeed * Time.deltaTime);
+    }
 
-        //Accelerartion/Deceleration
-
-        Vector3 targetVelocity = inputDirection * targetSpeed;
-        velocity = Vector3.MoveTowards(velocity, targetVelocity, (inputDirection.magnitude > 0 ? acceleration : deceleration) * Time.deltaTime);
-
-        //apply gravity
-
-        if (characterController.isGrounded)
+    private void applyGravity()
+    {
+        if(isGrounded() && velocity < 0f)
         {
-            verticalVelocity = -2f; //small force to keep player grounded
-            if (jumpPressed)
-            {
-                verticalVelocity = jumpHeight;
-                jumpPressed = false;
-            }
+            velocity = -1f;
         }
         else
         {
-            verticalVelocity += gravity * Time.deltaTime;
+
+            velocity += gravity * gravityMultiplier * Time.deltaTime;
         }
+        direction.y = velocity;
 
-        //Combine horizontal and vertical movement
-
-        Vector3 move = velocity + Vector3.up * verticalVelocity;
-        characterController.Move(move * Time.deltaTime);
     }
 
+    public void jump(InputAction.CallbackContext context)
+    {
+        if (!context.started) return;
+        if (!isGrounded() && numberofJumps >= maxJumps) return;
+        if (numberofJumps == 0)
+        {
+            StartCoroutine(resetJumps());
+        }
+
+        numberofJumps++;
+      
+        velocity = jumpPower;
+       
+    }
+
+    public void sprint(InputAction.CallbackContext context)
+    {
+        movement.isSprinting = context.started || context.performed;
+    }
+
+    public void slide(InputAction.CallbackContext context)
+    {
+        if (!context.started) return;
+        Debug.Log("Sliding");
+        
+        if(slideTimer < maxSlideTime)
+        {
+            slideTimer += Time.deltaTime;
+            playerObj.localScale = new Vector3(playerObj.localScale.x, slideYScale, playerObj.localScale.z);
+            characterController.Move(direction * movement.currentSpeed * slideSpeed * Time.deltaTime);
+        }
+        else
+        {
+            slideTimer = 0f;
+            playerObj.localScale = new Vector3(playerObj.localScale.x, startYScale, playerObj.localScale.z);
+            Debug.Log("Stop Sliding");
+        }
+       
+      
+    }
+
+    private IEnumerator resetJumps()
+    {
+        yield return new WaitUntil(() => !isGrounded());
+        yield return new WaitUntil(() => isGrounded());
+
+        numberofJumps = 0;
+    }
+
+    private bool isGrounded() => characterController.isGrounded;
+
+    [Serializable]
+    public struct Movement
+    {
+        public float speed;
+        public float multiplier;
+        public float acceleration;
+
+        public bool isSprinting;
+        public float currentSpeed;
+
+    }
 
 }
 
