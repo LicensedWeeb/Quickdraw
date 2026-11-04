@@ -66,7 +66,8 @@ public class PlayerMovement : MonoBehaviour
     public void Move(InputAction.CallbackContext context)
     {
         Input = context.ReadValue <Vector2>();
-        direction = new Vector3(Input.x, y: 0.0f, Input.y);
+        Vector3 planeNormal = Vector3.Normalize(new Vector3(0.0f, 0.0f, 1.0f));
+        direction = Vector3.ProjectOnPlane(new Vector3(Input.x, y: 0.0f, Input.y), planeNormal);
 
     }
 
