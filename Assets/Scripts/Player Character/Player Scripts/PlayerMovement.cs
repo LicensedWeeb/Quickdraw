@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.ComponentModel.Design;
 using System.Threading;
 using Unity.Hierarchy;
 using Unity.VisualScripting;
@@ -40,6 +41,7 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private float maxSlideTime = 1f;
     [SerializeField] private float slideTimer = 0f;
     [SerializeField] private Transform playerObj;
+    private bool isSliding;
 
 
     public float slideYScale = 0.5f;
@@ -60,6 +62,19 @@ public class PlayerMovement : MonoBehaviour
         
         applyGravity();
         applyMovement();
+        if(isSliding == true)
+        {
+            slideTimer += Time.deltaTime;
+            if (slideTimer >= maxSlideTime)
+            {
+                isSliding = false;
+                slideTimer = 0f;
+                playerObj.localScale = new Vector3(playerObj.localScale.x, startYScale, playerObj.localScale.z);
+                Debug.Log("Stop Sliding");
+            }
+        }
+
+
     }
 
 
@@ -118,21 +133,29 @@ public class PlayerMovement : MonoBehaviour
     {
         if (!context.started) return;
         Debug.Log("Sliding");
-        
-        if(slideTimer < maxSlideTime)
+        isSliding = true;
+
+
+        if (context.started)
         {
-            slideTimer += Time.deltaTime;
-            playerObj.localScale = new Vector3(playerObj.localScale.x, slideYScale, playerObj.localScale.z);
-            characterController.Move(direction * movement.currentSpeed * slideSpeed * Time.deltaTime);
+            
+            if (slideTimer < maxSlideTime)
+            { 
+                playerObj.localScale = new Vector3(playerObj.localScale.x, slideYScale, playerObj.localScale.z);
+                characterController.Move(direction * movement.currentSpeed * slideSpeed * Time.deltaTime);
+               
+                if(slideTimer == maxSlideTime)
+                {
+                    slideTimer = 0f;
+                    playerObj.localScale = new Vector3(playerObj.localScale.x, startYScale, playerObj.localScale.z);
+                    isSliding = false;
+                    Debug.Log("Stop Sliding");
+                }
+               
+            }
+ 
         }
-        else
-        {
-            slideTimer = 0f;
-            playerObj.localScale = new Vector3(playerObj.localScale.x, startYScale, playerObj.localScale.z);
-            Debug.Log("Stop Sliding");
-        }
-       
-      
+
     }
 
     private IEnumerator resetJumps()
