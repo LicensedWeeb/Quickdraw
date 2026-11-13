@@ -20,6 +20,8 @@ public class PlayerMovement : MonoBehaviour
     private Vector2 Input;
     private CharacterController characterController;
     private Vector3 direction;
+
+    private Rigidbody rb;
     [SerializeField] private float gravity = -9.81f;
     [SerializeField] private float gravityMultiplier = 2f;
     [SerializeField] private float velocity = 0f;
@@ -42,11 +44,28 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private float slideTimer = 0f;
     [SerializeField] private Transform playerObj;
     private bool isSliding;
-
-
     public float slideYScale = 0.5f;
     private float startYScale = 1f;
 
+    [Header("Grapple Hook Variables")]
+    [SerializeField] private float maxGrappleDistance = 100f;
+    [SerializeField] private float grappleDelay = 10f;
+
+    [SerializeField] private float grappleTimer = 0f;
+
+    [SerializeField] private float maxGrappleTime = 0.1f;
+
+    private Vector3 grapplePoint;
+
+    public float grappleCooldown = 1f;
+
+    private bool isGrappling;
+
+    public float overShootYAxis;
+
+    public LineRenderer grappleLineRenderer;
+
+    [SerializeField] private float grappleVelocity;
 
 
 
@@ -62,16 +81,37 @@ public class PlayerMovement : MonoBehaviour
         
         applyGravity();
         applyMovement();
-        if(isSliding == true)
+        grappleHook(new InputAction.CallbackContext());
+        if (isSliding == true)
         {
             slideTimer += Time.deltaTime;
+
+            //Needs if statement to check if player is on a slope will add when level is closer to completion
+            characterController.Move(direction * movement.currentSpeed * slideSpeed * Time.deltaTime);
+
             if (slideTimer >= maxSlideTime)
             {
                 isSliding = false;
                 slideTimer = 0f;
                 playerObj.localScale = new Vector3(playerObj.localScale.x, startYScale, playerObj.localScale.z);
                 Debug.Log("Stop Sliding");
+               
             }
+        }
+
+        if(isGrappling == true)
+        {
+            grappleTimer += Time.deltaTime;
+            grappleLineRenderer.SetPosition(0, transform.position);
+            characterController.Move((grapplePoint - transform.position).normalized * grappleVelocity * Time.deltaTime);
+
+            if (grappleTimer >= maxGrappleTime)
+            {
+                isGrappling = false;
+                grappleTimer = 0f;
+            }
+            
+            
         }
 
 
@@ -144,18 +184,29 @@ public class PlayerMovement : MonoBehaviour
                 playerObj.localScale = new Vector3(playerObj.localScale.x, slideYScale, playerObj.localScale.z);
                 characterController.Move(direction * movement.currentSpeed * slideSpeed * Time.deltaTime);
                
-                if(slideTimer == maxSlideTime)
-                {
-                    slideTimer = 0f;
-                    playerObj.localScale = new Vector3(playerObj.localScale.x, startYScale, playerObj.localScale.z);
-                    isSliding = false;
-                    Debug.Log("Stop Sliding");
-                }
-               
             }
  
         }
 
+    }
+
+    public void grappleHook(InputAction.CallbackContext context)
+    {
+        if(!context.started) return;
+
+        if (context.started)
+        {
+            RaycastHit hit;
+            Debug.DrawRay(transform.position, (transform.forward + transform.up) * 100f, Color.red, 2f);
+            if (Physics.Raycast(transform.position, (transform.forward + transform.up), out hit, maxGrappleDistance))
+            {
+                isGrappling = true;
+                grapplePoint = hit.point;
+                grappleLineRenderer.enabled = true;
+                grappleLineRenderer.SetPosition(1, grapplePoint);
+            }
+        }
+       
     }
 
     private IEnumerator resetJumps()
@@ -174,7 +225,6 @@ public class PlayerMovement : MonoBehaviour
         public float speed;
         public float multiplier;
         public float acceleration;
-
         public bool isSprinting;
         public float currentSpeed;
 
