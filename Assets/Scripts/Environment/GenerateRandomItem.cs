@@ -12,15 +12,25 @@ using UnityEngine;
     public GameObject Item;
     public int ChanceToGet;
 }
+[Serializable]
+public struct PlacementSetting
+{
+    int Placement;
+    RandomItemSettings[] ItemOptions;
+}
 public class GenerateRandomItem : MonoBehaviour
 {
-    [SerializeField] private RandomItemSettings[] ItemArray = new RandomItemSettings[] { };
+    [SerializeField] PlacementSetting[] PlacementSettings;
+    private RandomItemSettings[] ItemArray = new RandomItemSettings[] { };
     [SerializeField] private GameObject PlayerPrefab;
     int ItemChanceCount = 0;
+    [SerializeField] private GameObject Camera;
+    CameraManager CameraScript;
     
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
+        CameraScript = Camera.GetComponent<CameraManager>();
         for (int i = 0; i < ItemArray.Length; ++i)
         {
             ItemChanceCount += ItemArray[i].ChanceToGet;
