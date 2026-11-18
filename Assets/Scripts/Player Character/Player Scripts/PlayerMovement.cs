@@ -45,7 +45,9 @@ public class PlayerMovement : MonoBehaviour
     public float slideYScale = 0.5f;
     private float startYScale = 1f;
 
-
+    public bool isStunned = false;
+    public float stunTimer = 0.0f;
+    [SerializeField] public float stunTime; 
 
 
     private void Awake()
@@ -60,6 +62,18 @@ public class PlayerMovement : MonoBehaviour
         
         applyGravity();
         applyMovement();
+
+        if(isStunned)
+        {
+                if (stunTimer > 0.0f)
+                {
+                    stunTimer -= Time.fixedDeltaTime;
+                }
+                else if (stunTimer <= 0.0f)
+                {
+                    isStunned = false;
+                }
+        }
     }
 
 
@@ -73,6 +87,8 @@ public class PlayerMovement : MonoBehaviour
 
     private void applyMovement()
     {
+        if (isStunned)
+            return;
         var targetSpeed = movement.isSprinting ? movement.speed * movement.multiplier : movement.speed;
         movement.currentSpeed = Mathf.MoveTowards(movement.currentSpeed, targetSpeed, movement.acceleration * Time.deltaTime);
         

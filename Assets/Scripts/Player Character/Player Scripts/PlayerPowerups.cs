@@ -10,6 +10,7 @@ public class PlayerPowerups : MonoBehaviour
     [SerializeField] private GameObject quickDrawPrefab;
     [SerializeField] private GameObject slowDrawPrefab;
     [SerializeField] private GameObject dashPrefab;
+    [SerializeField] private GameObject playerPrefab;
 
 
     [SerializeField] private float goldenNuggetTime = 1.0f;
@@ -20,6 +21,7 @@ public class PlayerPowerups : MonoBehaviour
     private float lockOnTimer = 0.0f;
     [SerializeField] private float quickDrawForce = 6.0f;
     [SerializeField] private float dashForce = 6.0f;
+
 
 
     Rigidbody body;
@@ -41,12 +43,12 @@ public class PlayerPowerups : MonoBehaviour
                 goldenNuggetTimer = goldenNuggetTime;
                 powerupObj = null;
             }
-            else if(powerupObj == quickDrawPrefab)
+            else if (powerupObj == quickDrawPrefab)
             {
                 body.AddForce(Vector3.Normalize(-transform.forward - transform.up) * quickDrawForce, ForceMode.Impulse);
                 powerupObj = null;
             }
-            else if(powerupObj == dashPrefab)
+            else if (powerupObj == dashPrefab)
             {
                 body.AddForce(transform.forward * dashForce, ForceMode.Impulse);
                 powerupObj = null;
@@ -60,6 +62,18 @@ public class PlayerPowerups : MonoBehaviour
 
         }
 
+    }
+
+    void ShootBullet(Vector3 PlayerPos)
+    {
+        Vector3 RayDisplacement = PlayerPos - transform.position;
+        RaycastHit hit;
+        if(Physics.Raycast(transform.position, RayDisplacement.normalized, out hit, RayDisplacement.magnitude) && hit.collider.gameObject == playerPrefab)
+        {
+            PlayerMovement PlayerScript = hit.collider.gameObject.GetComponent<PlayerMovement>();   
+            PlayerScript.isStunned = true;
+            PlayerScript.stunTimer = PlayerScript.stunTime;
+        }
     }
 
     // Update is called once per frame
@@ -85,7 +99,10 @@ public class PlayerPowerups : MonoBehaviour
             else if (lockOnTimer <= 0.0f)
             {
                 isLockingOn = false;
+                ShootBullet(Vector3.zero);  // Need to integrate placement system to get closest player
             }
         }
+       
     }
 }
+
