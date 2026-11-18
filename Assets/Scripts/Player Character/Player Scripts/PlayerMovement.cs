@@ -67,6 +67,11 @@ public class PlayerMovement : MonoBehaviour
 
     [SerializeField] private float grappleVelocity;
 
+    [Header("Stun")]
+    public bool isStunned;
+    public float stunTimer;
+    public float stunTime;
+
 
 
     private void Awake()
