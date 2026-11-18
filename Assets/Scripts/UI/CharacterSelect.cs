@@ -1,36 +1,48 @@
+using Unity.Multiplayer.PlayMode;
 using UnityEngine;
 
 public class CharacterSelect : MonoBehaviour
 {
+    private CameraManager camManager;
+
+    public GameObject CurrentPlayer;
     [SerializeField] private GameObject[] characterModels;
 
-    void Start()
+    private void Start()
     {
-        
+        camManager = GameObject.Find("CameraManager").GetComponent<CameraManager>();
     }
 
-    void Update()
+    private void Update()
     {
-        
+        if (CurrentPlayer == null)
+        {
+            CurrentPlayer = camManager.players[0].refrence;
+        }
     }
 
-    void CowGirl()
+    public void CowGirl()
     {
-
+        Debug.Log("Cowgirl");
     }
 
-    void Prospector()
+    public void Prospector()
     {
-
+        Debug.Log("Prospector");
     }
 
-    void Outlaw()
+    public void Outlaw()
     {
-
+        Debug.Log("Outlaw");
     }
 
-    void Barkeeper()
+    public void Barkeeper()
     {
+        Debug.Log("Barkeeper");
+    }
 
+    public void NextPlayer()
+    {
+        Debug.Log("Next");
     }
 }

@@ -16,6 +16,10 @@ public class PlayerMovement : MonoBehaviour
     //other scripts
     private CameraManager cameraManager;
 
+    [Header("Character Select")]
+    public GameObject model;
+    public String SelectedPlayer;
+
     [Header("Bullshit")]
     private Vector2 Input;
     private CharacterController characterController;
@@ -72,8 +76,6 @@ public class PlayerMovement : MonoBehaviour
     public float stunTimer;
     public float stunTime;
 
-
-
     private void Awake()
     {
         characterController = GetComponent<CharacterController>();
@@ -121,7 +123,6 @@ public class PlayerMovement : MonoBehaviour
 
 
     }
-
 
     public void Move(InputAction.CallbackContext context)
     {

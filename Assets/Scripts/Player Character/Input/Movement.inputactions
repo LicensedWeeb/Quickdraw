@@ -141,6 +141,17 @@
                 },
                 {
                     "name": "",
+                    "id": "dd50f092-44be-48bc-8cb9-2c9f9fe03764",
+                    "path": "<XInputController>/buttonSouth",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Jump",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
                     "id": "5702ee28-2427-4699-8681-61284b1331b1",
                     "path": "<Keyboard>/leftShift",
                     "interactions": "",
