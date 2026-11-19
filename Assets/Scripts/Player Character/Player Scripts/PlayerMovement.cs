@@ -18,7 +18,7 @@ public class PlayerMovement : MonoBehaviour
 
     [Header("Character Select")]
     public GameObject model;
-    public String SelectedPlayer;
+    public String SelectedCharacter;
 
     [Header("Bullshit")]
     private Vector2 Input;
@@ -82,6 +82,7 @@ public class PlayerMovement : MonoBehaviour
         cameraManager = GameObject.Find("CameraManager").GetComponent<CameraManager>();
 
         cameraManager.AddPlayer(gameObject);
+        SelectedCharacter = "Cowgirl";
     }
     private void Update()
     {
@@ -224,6 +225,45 @@ public class PlayerMovement : MonoBehaviour
     }
 
     private bool isGrounded() => characterController.isGrounded;
+
+    private void Abilitys()
+    {
+        switch(SelectedCharacter)
+        {
+            case "Cowgirl":
+                CowgirlAbility();
+                break;
+            case "Outlaw":
+                OutlawAbility();
+                break;
+            case "Prospector":
+                ProspectorAbility();
+                break;
+            case "Barkeeper":
+                BarkeeperAbility();
+                break;
+        }
+    }
+
+    private void CowgirlAbility()
+    {
+
+    }
+
+    private void OutlawAbility()
+    {
+
+    }
+
+    private void ProspectorAbility()
+    {
+
+    }
+
+    private void BarkeeperAbility()
+    {
+
+    }
 
     [Serializable]
     public struct Movement

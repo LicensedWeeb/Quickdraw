@@ -556,11 +556,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CharacterSelect
   CurrentPlayer: {fileID: 0}
+  playerNum: 0
   characterModels:
-  - {fileID: 919132149155446097, guid: ccc5e8a18ab8f7b4da8d40e8926c65b9, type: 3}
-  - {fileID: 919132149155446097, guid: 94a164c31afffb840a0f90afdc04a449, type: 3}
-  - {fileID: 919132149155446097, guid: a2d6934a3c2f59e4bb447ea7e526b0ec, type: 3}
-  - {fileID: 919132149155446097, guid: 86f8df9be29acef40853aea56970efd4, type: 3}
+  - {fileID: -32075172766063041, guid: ccc5e8a18ab8f7b4da8d40e8926c65b9, type: 3}
+  - {fileID: 2577683184076091189, guid: 94a164c31afffb840a0f90afdc04a449, type: 3}
+  - {fileID: -4354313105992905776, guid: a2d6934a3c2f59e4bb447ea7e526b0ec, type: 3}
+  - {fileID: -6276530520861905526, guid: 86f8df9be29acef40853aea56970efd4, type: 3}
+  nextBtn: {fileID: 1413702452}
+  selectUI: {fileID: 472662671}
 --- !u!1 &614296325
 GameObject:
   m_ObjectHideFlags: 0
