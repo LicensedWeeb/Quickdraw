@@ -7,28 +7,36 @@ public class CameraManager : MonoBehaviour
 {
     public List<player> players;
     [SerializeField] private CinemachineCamera cam;
-    private GameObject frontPlayer;
+    [SerializeField] private GameObject Objective;
 
 
     // Update is called once per frame
     void Update()
     {
-        if (frontPlayer == null && players[0].refrence != null)
+        if (players.Count < 1)
+            return;
+        player swappingPlayer;
+        for (int i = 0; i < players.Count; ++i)
         {
-            frontPlayer = players[0].refrence;
-        }
-        else
-        {
-            for (int i = 0; i < players.Count; i++)
+            // Added -1 so it doesn't go to last element as it already does thrpough + 1
+            for (int j = 0; j < players.Count - 1; ++j) // Could add dist val to player struct to avoid multiple overlapping Dist calcs
             {
-                if (players[i].refrence.transform.position.x > frontPlayer.transform.position.x)
+                if ((players[j].reference.transform.position - Objective.transform.position).magnitude > (players[j + 1].reference.transform.position - Objective.transform.position).magnitude)
                 {
-                    frontPlayer = players[i].refrence;
+                    swappingPlayer = players[j]; 
+                    players[j] = players[j + 1];
+                    players[j + 1] = swappingPlayer;
                 }
             }
         }
-
-        cam.Follow = frontPlayer.transform;
+        for(int i = 0; i < players.Count; ++i)
+        {
+            player structToChange = players[i];
+            structToChange.placement = i + 1;
+            players[i] = structToChange;
+        }
+  
+        cam.Follow = players[0].reference.transform;
     }
 
     public void AddPlayer(GameObject passedPlayer)
@@ -36,16 +44,38 @@ public class CameraManager : MonoBehaviour
         player newPlayer = new player(passedPlayer, 0);
         players.Add(newPlayer);
     }
+    public player FindPlayer(int placement)
+    {
+        for (int i = 0; i < players.Count; ++i)
+        {
+            if (players[i].placement == placement)
+            {
+                return players[i];
+            }
+        }
+        return new player();
+    }
+    public player FindPlayer(GameObject Player)
+    {
+        for (int i = 0; i < players.Count; ++i)
+        {
+            if (players[i].reference == Player)
+            {
+                return players[i];
+            }
+        }
+        return new player();
+    }
 
     [System.Serializable] public struct player
     {
         public player(GameObject passedPlayer, int passedPlace)
         {
-            this.refrence = passedPlayer;
+            this.reference = passedPlayer;
             this.placement = passedPlace;
         }
 
-        public GameObject refrence;
+        public GameObject reference;
         public int placement;
     }
 }

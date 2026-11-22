@@ -36,8 +36,6 @@ public class PlayerMovement : MonoBehaviour
 
     [SerializeField] private Movement movement;
 
-    [SerializeField] private GameObject heldItem;
-
     [Header ("Slide Variables")]
     [SerializeField] private float slideSpeed = 3f;
     [SerializeField] private float maxSlideTime = 1f;
@@ -118,7 +116,17 @@ public class PlayerMovement : MonoBehaviour
             
             
         }
-
+        if(isStunned)
+        {
+            if (stunTimer > 0.0f)
+            {
+                stunTimer -= Time.fixedDeltaTime;
+            }
+            else if (stunTimer <= 0.0f)
+            {
+                isStunned = false;
+            }
+        }
 
     }
 

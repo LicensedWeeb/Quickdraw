@@ -1075,6 +1075,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CameraManager
   players: []
   cam: {fileID: 408395897}
+  Objective: {fileID: 929196146}
 --- !u!4 &1831193515
 Transform:
   m_ObjectHideFlags: 0

@@ -5,7 +5,7 @@ using UnityEngine.InputSystem;
 public class PlayerPowerups : MonoBehaviour
 {
     // Start is called once before the first execution of Update after the MonoBehaviour is created
-    GameObject powerupObj;
+    [HideInInspector] public GameObject powerupObj;
     [SerializeField] private GameObject goldenNuggetPrefab;
     [SerializeField] private GameObject quickDrawPrefab;
     [SerializeField] private GameObject slowDrawPrefab;
@@ -22,15 +22,15 @@ public class PlayerPowerups : MonoBehaviour
     [SerializeField] private float quickDrawForce = 6.0f;
     [SerializeField] private float dashForce = 6.0f;
 
-
-
     Rigidbody body;
+    CameraManager cameraManager;
 
 
 
     void Start()
     {
         body = GetComponent<Rigidbody>();
+        cameraManager = GameObject.Find("CameraManager").GetComponent<CameraManager>();
     }
 
     public void UseAbility(InputAction.CallbackContext context)
@@ -98,11 +98,14 @@ public class PlayerPowerups : MonoBehaviour
             }
             else if (lockOnTimer <= 0.0f)
             {
-                isLockingOn = false;
-                ShootBullet(Vector3.zero);  // Need to integrate placement system to get closest player
+                isLockingOn = false;    // Shouldn't work with 
+                ShootBullet(cameraManager.FindPlayer(gameObject).reference.transform.position); 
             }
         }
        
     }
+    private void OnDestroy()
+    {
+        cameraManager.players.Remove(cameraManager.FindPlayer(gameObject));
+    }
 }
-
