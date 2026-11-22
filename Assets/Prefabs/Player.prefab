@@ -406,6 +406,9 @@ MonoBehaviour:
   stunTimer: 0
   stunTime: 1
   mass: 70
+  dragCoeff: 0.5
+  kineticFrictionCoeff: 0.7
+  staticFrictionCoeff: 1
 --- !u!143 &3377090713526599342
 CharacterController:
   m_ObjectHideFlags: 0

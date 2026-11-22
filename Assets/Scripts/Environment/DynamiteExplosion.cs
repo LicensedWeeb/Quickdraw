@@ -34,7 +34,8 @@ public class DynamiteExplosion : MonoBehaviour
                     playerBody = cameraManager.players[i].reference.GetComponent<PlayerMovement>();
                     if (playerBody != null)
                     {
-                       // playerBody.AddImpulse(playerDist.normalized * explosionImpulse * playerBody.mass);
+                        playerBody.AddImpulse(playerDist.normalized * explosionImpulse * playerBody.mass);
+                        Debug.Log("Heh");
                     }
                 }
             }
