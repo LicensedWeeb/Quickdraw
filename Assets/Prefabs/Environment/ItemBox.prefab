@@ -47,8 +47,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d140ebda2bd21a446af1143f9c1c78b1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: '::'
-  ItemArray: []
-  PlayerPrefab: {fileID: 7372480515013230141, guid: 03d23c0f8e86c604996c80a0c0b6b688, type: 3}
+  placementSettings:
+  - placement: 1
+    itemOptions:
+    - item: {fileID: 7199444200745628419, guid: f8da5b30b09cd774199a77e3ffc1b2f1, type: 3}
+      chanceToGet: 33
+    - item: {fileID: 3439752650092939422, guid: 8c2003f4185d98e44aaa24a79165cc9e, type: 3}
+      chanceToGet: 33
+    - item: {fileID: 1117155239355949967, guid: 904f3ba6b03799f4fb5276cc3fa38d5d, type: 3}
+      chanceToGet: 33
+  playerPrefab: {fileID: 7372480515013230141, guid: 03d23c0f8e86c604996c80a0c0b6b688, type: 3}
 --- !u!65 &6420357618294943713
 BoxCollider:
   m_ObjectHideFlags: 0
