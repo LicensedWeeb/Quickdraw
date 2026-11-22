@@ -86,5 +86,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: '::'
   explosionTime: 1
   explosionRadius: 1
-  explosionImpulse: 1
+  explosionImpulse: 10
   cameraManager: {fileID: 0}
