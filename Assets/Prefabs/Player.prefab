@@ -404,7 +404,8 @@ MonoBehaviour:
   grappleVelocity: 25
   isStunned: 0
   stunTimer: 0
-  stunTime: 0
+  stunTime: 1
+  mass: 70
 --- !u!143 &3377090713526599342
 CharacterController:
   m_ObjectHideFlags: 0
