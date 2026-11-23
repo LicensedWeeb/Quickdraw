@@ -99,7 +99,9 @@ public class PlayerPowerups : MonoBehaviour
             else if (lockOnTimer <= 0.0f)
             {
                 isLockingOn = false;    // Shouldn't work with 
-                ShootBullet(cameraManager.FindPlayer(gameObject).reference.transform.position); 
+                int placementAhead = cameraManager.FindPlayer(gameObject).placement - 1;
+                if (placementAhead > 0)
+                    ShootBullet(cameraManager.FindPlayer(placementAhead).reference.transform.position); 
             }
         }
        
