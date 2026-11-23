@@ -143,10 +143,10 @@ public class PlayerMovement : MonoBehaviour
 
     void FixedUpdate()
     {
-        
+        /*
         AddAccel(gravity * gravityMultiplier * transform.up);
         AddForce(PhysVel.normalized * PhysVel.magnitude * dragCoeff);
-        IntegrateVel(Time.fixedDeltaTime);
+        IntegrateVel(Time.fixedDeltaTime);*/
     }
     public void Move(InputAction.CallbackContext context)
     {
@@ -190,8 +190,8 @@ public class PlayerMovement : MonoBehaviour
 
         numberofJumps++;
       
-        //velocity = jumpPower;
-        AddImpulse(transform.up * jumpPower * mass);
+        velocity = jumpPower;
+        //AddImpulse(transform.up * jumpPower * mass);
         PhysVel -= new Vector3(0, PhysVel.y, 0);
        
     }
@@ -240,41 +240,42 @@ public class PlayerMovement : MonoBehaviour
         }
        
     }
-   
-    void IntegrateVel(float DeltaTime)
-    {
-        PhysVel += PhysImpulse * invMass;
 
-        Vector3 NewDisp = Vector3.zero;
+    /* void IntegrateVel(float DeltaTime)
+      {
+          PhysVel += PhysImpulse * invMass;
 
-        PhysVel += PhysAccel * DeltaTime;
-        NewDisp = PhysVel * DeltaTime;
-        
-        NewDisp = new Vector3(NewDisp.x, NewDisp.y, 0.0f).normalized * NewDisp.magnitude;
+          Vector3 NewDisp = Vector3.zero;
 
-        characterController.Move(NewDisp);
+          PhysVel += PhysAccel * DeltaTime;
+          NewDisp = PhysVel * DeltaTime;
 
-        if (isGrounded())
-        {
-            PhysVel = Vector3.zero; // cancels out all velocity after hitting the ground 
-            Debug.Log("Help please");
-        }
+          NewDisp = new Vector3(NewDisp.x, NewDisp.y, 0.0f).normalized * NewDisp.magnitude;
 
-        PhysAccel = Vector3.zero;
-        PhysImpulse = Vector3.zero;
-    }
-    public void AddAccel(Vector3 Accel)
-    {
-        PhysAccel += Accel;
-    }
-    public void AddForce(Vector3 Force)
-    {
-        PhysAccel += Force*invMass;
-    }
-    public void AddImpulse(Vector3 Impulse)
-    {
-        PhysImpulse += Impulse;
-    }
+          Debug.Log(Vector3.Dot(PhysVel, transform.up));
+
+          characterController.Move(NewDisp);
+
+          if (isGrounded())
+          {
+              PhysVel = Vector3.zero; // cancels out all velocity after hitting the ground 
+          }
+
+          PhysAccel = Vector3.zero;
+          PhysImpulse = Vector3.zero;
+      }
+      public void AddAccel(Vector3 Accel)
+      {
+          PhysAccel += Accel;
+      }
+      public void AddForce(Vector3 Force)
+      {
+          PhysAccel += Force*invMass;
+      }
+      public void AddImpulse(Vector3 Impulse)
+      {
+          PhysImpulse += Impulse;
+      }*/
     private IEnumerator resetJumps()
     {
         yield return new WaitUntil(() => !isGrounded());
