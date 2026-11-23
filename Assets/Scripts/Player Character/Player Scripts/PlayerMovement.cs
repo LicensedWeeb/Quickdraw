@@ -95,6 +95,11 @@ public class PlayerMovement : MonoBehaviour
     {
         
         //applyGravity();
+        
+    }
+
+    void FixedUpdate()
+    {
         applyMovement();
         grappleHook(new InputAction.CallbackContext());
         if (isSliding == true)
@@ -110,11 +115,11 @@ public class PlayerMovement : MonoBehaviour
                 slideTimer = 0f;
                 playerObj.localScale = new Vector3(playerObj.localScale.x, startYScale, playerObj.localScale.z);
                 Debug.Log("Stop Sliding");
-               
+
             }
         }
 
-        if(isGrappling == true)
+        if (isGrappling == true)
         {
             grappleTimer += Time.deltaTime;
             grappleLineRenderer.SetPosition(0, transform.position);
@@ -125,10 +130,10 @@ public class PlayerMovement : MonoBehaviour
                 isGrappling = false;
                 grappleTimer = 0f;
             }
-            
-            
+
+
         }
-        if(isStunned)
+        if (isStunned)
         {
             if (stunTimer > 0.0f)
             {
@@ -139,14 +144,9 @@ public class PlayerMovement : MonoBehaviour
                 isStunned = false;
             }
         }
-    }
-
-    void FixedUpdate()
-    {
-        /*
         AddAccel(gravity * gravityMultiplier * transform.up);
         AddForce(PhysVel.normalized * PhysVel.magnitude * dragCoeff);
-        IntegrateVel(Time.fixedDeltaTime);*/
+        IntegrateVel(Time.fixedDeltaTime);
     }
     public void Move(InputAction.CallbackContext context)
     {
@@ -190,9 +190,10 @@ public class PlayerMovement : MonoBehaviour
 
         numberofJumps++;
       
-        velocity = jumpPower;
-        //AddImpulse(transform.up * jumpPower * mass);
+        //velocity = jumpPower;
+        AddImpulse(transform.up * jumpPower * mass);
         PhysVel -= new Vector3(0, PhysVel.y, 0);
+        Debug.Log("IsJumping");
        
     }
 
@@ -241,9 +242,9 @@ public class PlayerMovement : MonoBehaviour
        
     }
 
-    /* void IntegrateVel(float DeltaTime)
+    void IntegrateVel(float DeltaTime)
       {
-          PhysVel += PhysImpulse * invMass;
+           PhysVel += PhysImpulse * invMass;
 
           Vector3 NewDisp = Vector3.zero;
 
@@ -252,7 +253,7 @@ public class PlayerMovement : MonoBehaviour
 
           NewDisp = new Vector3(NewDisp.x, NewDisp.y, 0.0f).normalized * NewDisp.magnitude;
 
-          Debug.Log(Vector3.Dot(PhysVel, transform.up));
+          //Debug.Log(Vector3.Dot(PhysVel, transform.up));
 
           characterController.Move(NewDisp);
 
@@ -275,7 +276,7 @@ public class PlayerMovement : MonoBehaviour
       public void AddImpulse(Vector3 Impulse)
       {
           PhysImpulse += Impulse;
-      }*/
+      }
     private IEnumerator resetJumps()
     {
         yield return new WaitUntil(() => !isGrounded());
