@@ -1,8 +1,13 @@
+using System;
+using System.Collections;
+using System.ComponentModel.Design;
 using System.Threading;
 using Unity.Hierarchy;
 using Unity.VisualScripting;
+using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.Serialization;
 
 [RequireComponent(typeof(CharacterController))]
 
@@ -11,27 +16,65 @@ public class PlayerMovement : MonoBehaviour
     //other scripts
     private CameraManager cameraManager;
 
+    [Header("Character Select")]
+    public GameObject model;
+    public String SelectedCharacter;
+
     [Header("Bullshit")]
     private Vector2 Input;
     private CharacterController characterController;
     private Vector3 direction;
-    private Vector3 velocity;
-    private float verticalVelocity;
-    private bool isSprinting;
-    private bool jumpPressed;
 
-    [Header("PlayerMovementSettings")]
-    [SerializeField] private float minSpeed = 0f;
-    [SerializeField] private float maxSpeed = 10f;
-    [SerializeField] private float acceleration = 5f;
-    [SerializeField] private float deceleration = 2f;
-    [SerializeField] private float jumpHeight = 0f;
+    private Rigidbody rb;
     [SerializeField] private float gravity = -9.81f;
+    [SerializeField] private float gravityMultiplier = 2f;
+    [SerializeField] private float velocity = 0f;
+
+    [Header("Jump Variables")]
+    [SerializeField] private float jumpPower = 2f;
+
+    private int numberofJumps = 0;
+    [SerializeField] private int maxJumps = 2;
 
     [SerializeField] private float speed = 5f;
 
+    [SerializeField] private Movement movement;
 
+    [SerializeField] private GameObject heldItem;
 
+    [Header ("Slide Variables")]
+    [SerializeField] private float slideSpeed = 3f;
+    [SerializeField] private float maxSlideTime = 1f;
+    [SerializeField] private float slideTimer = 0f;
+    [SerializeField] private Transform playerObj;
+    private bool isSliding;
+    public float slideYScale = 0.5f;
+    private float startYScale = 1f;
+
+    [Header("Grapple Hook Variables")]
+    [SerializeField] private float maxGrappleDistance = 100f;
+    [SerializeField] private float grappleDelay = 10f;
+
+    [SerializeField] private float grappleTimer = 0f;
+
+    [SerializeField] private float maxGrappleTime = 0.1f;
+
+    private Vector3 grapplePoint;
+
+    public float grappleCooldown = 1f;
+
+    private bool isGrappling;
+
+    public float overShootYAxis;
+
+    public LineRenderer grappleLineRenderer;
+
+    [SerializeField] private float grappleVelocity;
+
+    [Header("Stun")]
+    public bool isStunned;
+    public float stunTimer;
+    public float stunTime;
 
     private void Awake()
     {
@@ -39,72 +82,199 @@ public class PlayerMovement : MonoBehaviour
         cameraManager = GameObject.Find("CameraManager").GetComponent<CameraManager>();
 
         cameraManager.AddPlayer(gameObject);
-    }
-
-    //Performed by Unity Input System
-    public void onMove(InputAction.CallbackContext context)
-    {
-        Input = context.ReadValue<Vector2>();
-    }
-
-    public void onSprint(InputAction.CallbackContext context)
-    {
-        isSprinting = context.performed;
-    }
-
-    public void onJump(InputAction.CallbackContext context)
-    {
-        if (context.performed)
-        {
-            jumpPressed = true;
-        }
+        SelectedCharacter = "Cowgirl";
     }
     private void Update()
     {
-        characterController.Move(direction * speed * Time.deltaTime);
-       // handleMovement();
-    }
+        
+        applyGravity();
+        applyMovement();
+        grappleHook(new InputAction.CallbackContext());
+        if (isSliding == true)
+        {
+            slideTimer += Time.deltaTime;
 
+            //Needs if statement to check if player is on a slope will add when level is closer to completion
+            characterController.Move(direction * movement.currentSpeed * slideSpeed * Time.deltaTime);
+
+            if (slideTimer >= maxSlideTime)
+            {
+                isSliding = false;
+                slideTimer = 0f;
+                playerObj.localScale = new Vector3(playerObj.localScale.x, startYScale, playerObj.localScale.z);
+                Debug.Log("Stop Sliding");
+               
+            }
+        }
+
+        if(isGrappling == true)
+        {
+            grappleTimer += Time.deltaTime;
+            grappleLineRenderer.SetPosition(0, transform.position);
+            characterController.Move((grapplePoint - transform.position).normalized * grappleVelocity * Time.deltaTime);
+
+            if (grappleTimer >= maxGrappleTime)
+            {
+                isGrappling = false;
+                grappleTimer = 0f;
+            }
+            
+            
+        }
+
+
+    }
 
     public void Move(InputAction.CallbackContext context)
     {
         Input = context.ReadValue <Vector2>();
-        direction = new Vector3(Input.x, y: 0.0f, Input.y);
+        Vector3 planeNormal = Vector3.Normalize(new Vector3(0.0f, 0.0f, 1.0f));
+        direction = Vector3.ProjectOnPlane(new Vector3(Input.x, y: 0.0f, Input.y), planeNormal);
 
     }
 
-    private void handleMovement()
+    private void applyMovement()
     {
-        float targetSpeed = isSprinting ? minSpeed : maxSpeed;
-        Vector3 inputDirection = (transform.forward * Input.y + transform.right * Input.x);
+        var targetSpeed = movement.isSprinting ? movement.speed * movement.multiplier : movement.speed;
+        movement.currentSpeed = Mathf.MoveTowards(movement.currentSpeed, targetSpeed, movement.acceleration * Time.deltaTime);
+        
+        characterController.Move(direction * movement.currentSpeed * Time.deltaTime);
+    }
 
-        //Accelerartion/Deceleration
-
-        Vector3 targetVelocity = inputDirection * targetSpeed;
-        velocity = Vector3.MoveTowards(velocity, targetVelocity, (inputDirection.magnitude > 0 ? acceleration : deceleration) * Time.deltaTime);
-
-        //apply gravity
-
-        if (characterController.isGrounded)
+    private void applyGravity()
+    {
+        if(isGrounded() && velocity < 0f)
         {
-            verticalVelocity = -2f; //small force to keep player grounded
-            if (jumpPressed)
-            {
-                verticalVelocity = jumpHeight;
-                jumpPressed = false;
-            }
+            velocity = -1f;
         }
         else
         {
-            verticalVelocity += gravity * Time.deltaTime;
+
+            velocity += gravity * gravityMultiplier * Time.deltaTime;
         }
+        direction.y = velocity;
 
-        //Combine horizontal and vertical movement
-
-        Vector3 move = velocity + Vector3.up * verticalVelocity;
-        characterController.Move(move * Time.deltaTime);
     }
 
+    public void jump(InputAction.CallbackContext context)
+    {
+        if (!context.started) return;
+        if (!isGrounded() && numberofJumps >= maxJumps) return;
+        if (numberofJumps == 0)
+        {
+            StartCoroutine(resetJumps());
+        }
+
+        numberofJumps++;
+      
+        velocity = jumpPower;
+       
+    }
+
+    public void sprint(InputAction.CallbackContext context)
+    {
+        movement.isSprinting = context.started || context.performed;
+    }
+
+    public void slide(InputAction.CallbackContext context)
+    {
+        if (!context.started) return;
+        Debug.Log("Sliding");
+        isSliding = true;
+
+
+        if (context.started)
+        {
+            
+            if (slideTimer < maxSlideTime)
+            { 
+                playerObj.localScale = new Vector3(playerObj.localScale.x, slideYScale, playerObj.localScale.z);
+                characterController.Move(direction * movement.currentSpeed * slideSpeed * Time.deltaTime);
+               
+            }
+ 
+        }
+
+    }
+
+    public void grappleHook(InputAction.CallbackContext context)
+    {
+        if(!context.started) return;
+
+        if (context.started)
+        {
+            RaycastHit hit;
+            Debug.DrawRay(transform.position, (transform.forward + transform.up) * 100f, Color.red, 2f);
+            if (Physics.Raycast(transform.position, (transform.forward + transform.up), out hit, maxGrappleDistance))
+            {
+                isGrappling = true;
+                grapplePoint = hit.point;
+                grappleLineRenderer.enabled = true;
+                grappleLineRenderer.SetPosition(1, grapplePoint);
+            }
+        }
+       
+    }
+
+    private IEnumerator resetJumps()
+    {
+        yield return new WaitUntil(() => !isGrounded());
+        yield return new WaitUntil(() => isGrounded());
+
+        numberofJumps = 0;
+    }
+
+    private bool isGrounded() => characterController.isGrounded;
+
+    private void Abilitys()
+    {
+        switch(SelectedCharacter)
+        {
+            case "Cowgirl":
+                CowgirlAbility();
+                break;
+            case "Outlaw":
+                OutlawAbility();
+                break;
+            case "Prospector":
+                ProspectorAbility();
+                break;
+            case "Barkeeper":
+                BarkeeperAbility();
+                break;
+        }
+    }
+
+    private void CowgirlAbility()
+    {
+
+    }
+
+    private void OutlawAbility()
+    {
+
+    }
+
+    private void ProspectorAbility()
+    {
+
+    }
+
+    private void BarkeeperAbility()
+    {
+
+    }
+
+    [Serializable]
+    public struct Movement
+    {
+        public float speed;
+        public float multiplier;
+        public float acceleration;
+        public bool isSprinting;
+        public float currentSpeed;
+
+    }
 
 }
 
