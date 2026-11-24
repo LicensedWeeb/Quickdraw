@@ -22,7 +22,7 @@ public class CharacterSelect : MonoBehaviour
     {
         if (CurrentPlayer == null)
         {
-            CurrentPlayer = camManager.players[playerNum].refrence;
+            CurrentPlayer = camManager.players[playerNum].reference;
         }
     }
 
@@ -64,7 +64,7 @@ public class CharacterSelect : MonoBehaviour
                 }
                 else
                 {
-                    CurrentPlayer = camManager.players[playerNum].refrence;
+                    CurrentPlayer = camManager.players[playerNum].reference;
                 }
             }
             else

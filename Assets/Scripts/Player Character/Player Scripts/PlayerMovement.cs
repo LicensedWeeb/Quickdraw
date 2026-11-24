@@ -17,6 +17,10 @@ public class PlayerMovement : MonoBehaviour
     //other scripts
     private CameraManager cameraManager;
 
+    [Header("Character Select")]
+    public GameObject model;
+    public String SelectedCharacter;
+
     [Header("Bullshit")]
     private Vector2 Input;
     private CharacterController characterController;
@@ -90,6 +94,7 @@ public class PlayerMovement : MonoBehaviour
         {
             invMass = 1/mass;
         }
+        SelectedCharacter = "Cowgirl";
     }
     private void Update()
     {
@@ -284,6 +289,42 @@ public class PlayerMovement : MonoBehaviour
 
         numberofJumps = 0;
     }
+
+    void Abilitys()
+    {
+        switch(SelectedCharacter)
+        {
+            case "Cowgirl":
+                CowgirlAbility();
+                break;
+            case "Outlaw":
+                OutlawAbility();
+                break;
+            case "Prospector":
+                ProspectorAbility();
+                break;
+            case "Barkeeper":
+                BarkeeperAbility();
+                break;
+        }
+    }
+    void CowgirlAbility()
+    {
+
+    }
+    void OutlawAbility()
+    {
+
+    }
+    void ProspectorAbility()
+    {
+
+    }
+    void BarkeeperAbility()
+    {
+
+    }
+
 
     private bool isGrounded() => characterController.isGrounded;
 
