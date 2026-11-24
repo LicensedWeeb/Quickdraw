@@ -45,12 +45,12 @@ public class PlayerPowerups : MonoBehaviour
             }
             else if (powerupObj == quickDrawPrefab)
             {
-                //body.AddImpulse(Vector3.Normalize(-transform.forward - transform.up) * quickDrawForce * body.mass);
+                body.AddImpulse(Vector3.Normalize(-transform.forward - transform.up) * quickDrawForce * body.mass);
                 powerupObj = null;
             }
             else if (powerupObj == dashPrefab)
             {
-                //body.AddImpulse(transform.forward * dashForce * body.mass); // Might need to just make this 
+                body.AddImpulse(transform.forward * dashForce * body.mass); // Might need to just make this 
                 powerupObj = null;
             }
             else if (powerupObj == slowDrawPrefab)
