@@ -236,11 +236,11 @@ MonoBehaviour:
   gravity: -9.81
   gravityMultiplier: 1
   velocity: 0
-  jumpPower: 5
+  jumpPower: 3
   maxJumps: 2
   speed: 5
   movement:
-    speed: 5
+    speed: 10
     multiplier: 2
     acceleration: 20
     isSprinting: 0
