@@ -1,7 +1,7 @@
 using Unity.Multiplayer.PlayMode;
 using UnityEngine;
 using TMPro;
-
+using UnityEngine.SceneManagement;
 public class CharacterSelect : MonoBehaviour
 {
     private CameraManager camManager;
@@ -70,7 +70,9 @@ public class CharacterSelect : MonoBehaviour
             else
             {
                 Time.timeScale = 1f;
+                SceneManager.LoadScene("Level 1");
                 selectUI.SetActive(false);
+                
             }
         }
     }
