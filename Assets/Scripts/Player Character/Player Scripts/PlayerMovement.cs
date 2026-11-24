@@ -1,3 +1,4 @@
+using NUnit.Framework;
 using System;
 using System.Collections;
 using System.ComponentModel.Design;
@@ -15,10 +16,6 @@ public class PlayerMovement : MonoBehaviour
 {
     //other scripts
     private CameraManager cameraManager;
-
-    [Header("Character Select")]
-    public GameObject model;
-    public String SelectedCharacter;
 
     [Header("Bullshit")]
     private Vector2 Input;
@@ -39,8 +36,6 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private float speed = 5f;
 
     [SerializeField] private Movement movement;
-
-    [SerializeField] private GameObject heldItem;
 
     [Header ("Slide Variables")]
     [SerializeField] private float slideSpeed = 3f;
@@ -72,9 +67,18 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private float grappleVelocity;
 
     [Header("Stun")]
-    public bool isStunned;
-    public float stunTimer;
-    public float stunTime;
+    [HideInInspector] public bool isStunned = false;
+    [HideInInspector] public float stunTimer;
+    public float stunTime = 1.0f;
+
+
+    [Header("Physics Integration")]
+    private Vector3 PhysVel = Vector3.zero;
+    private Vector3 PhysAccel = Vector3.zero;
+    private Vector3 PhysImpulse = Vector3.zero;
+    public float mass = 2;
+    private float invMass = 0;
+    [SerializeField] private float dragCoeff = 0.5f;
 
     private void Awake()
     {
@@ -82,12 +86,20 @@ public class PlayerMovement : MonoBehaviour
         cameraManager = GameObject.Find("CameraManager").GetComponent<CameraManager>();
 
         cameraManager.AddPlayer(gameObject);
-        SelectedCharacter = "Cowgirl";
+        if(mass > 0)
+        {
+            invMass = 1/mass;
+        }
     }
     private void Update()
     {
         
-        applyGravity();
+        //applyGravity();
+        
+    }
+
+    void FixedUpdate()
+    {
         applyMovement();
         grappleHook(new InputAction.CallbackContext());
         if (isSliding == true)
@@ -103,11 +115,11 @@ public class PlayerMovement : MonoBehaviour
                 slideTimer = 0f;
                 playerObj.localScale = new Vector3(playerObj.localScale.x, startYScale, playerObj.localScale.z);
                 Debug.Log("Stop Sliding");
-               
+
             }
         }
 
-        if(isGrappling == true)
+        if (isGrappling == true)
         {
             grappleTimer += Time.deltaTime;
             grappleLineRenderer.SetPosition(0, transform.position);
@@ -118,13 +130,24 @@ public class PlayerMovement : MonoBehaviour
                 isGrappling = false;
                 grappleTimer = 0f;
             }
-            
-            
+
+
         }
-
-
+        if (isStunned)
+        {
+            if (stunTimer > 0.0f)
+            {
+                stunTimer -= Time.fixedDeltaTime;
+            }
+            else if (stunTimer <= 0.0f)
+            {
+                isStunned = false;
+            }
+        }
+        AddAccel(gravity * gravityMultiplier * transform.up);
+        AddForce(PhysVel.normalized * PhysVel.magnitude * dragCoeff);
+        IntegrateVel(Time.fixedDeltaTime);
     }
-
     public void Move(InputAction.CallbackContext context)
     {
         Input = context.ReadValue <Vector2>();
@@ -149,9 +172,9 @@ public class PlayerMovement : MonoBehaviour
         }
         else
         {
-
             velocity += gravity * gravityMultiplier * Time.deltaTime;
         }
+
         direction.y = velocity;
 
     }
@@ -167,7 +190,10 @@ public class PlayerMovement : MonoBehaviour
 
         numberofJumps++;
       
-        velocity = jumpPower;
+        //velocity = jumpPower;
+        AddImpulse(transform.up * jumpPower * mass);
+        PhysVel -= new Vector3(0, PhysVel.y, 0);
+        Debug.Log("IsJumping");
        
     }
 
@@ -216,6 +242,41 @@ public class PlayerMovement : MonoBehaviour
        
     }
 
+    void IntegrateVel(float DeltaTime)
+      {
+           PhysVel += PhysImpulse * invMass;
+
+          Vector3 NewDisp = Vector3.zero;
+
+          PhysVel += PhysAccel * DeltaTime;
+          NewDisp = PhysVel * DeltaTime;
+
+          NewDisp = new Vector3(NewDisp.x, NewDisp.y, 0.0f).normalized * NewDisp.magnitude;
+
+          //Debug.Log(Vector3.Dot(PhysVel, transform.up));
+
+          characterController.Move(NewDisp);
+
+          if (isGrounded())
+          {
+              PhysVel = Vector3.zero; // cancels out all velocity after hitting the ground 
+          }
+
+          PhysAccel = Vector3.zero;
+          PhysImpulse = Vector3.zero;
+      }
+      public void AddAccel(Vector3 Accel)
+      {
+          PhysAccel += Accel;
+      }
+      public void AddForce(Vector3 Force)
+      {
+          PhysAccel += Force*invMass;
+      }
+      public void AddImpulse(Vector3 Impulse)
+      {
+          PhysImpulse += Impulse;
+      }
     private IEnumerator resetJumps()
     {
         yield return new WaitUntil(() => !isGrounded());
@@ -225,45 +286,6 @@ public class PlayerMovement : MonoBehaviour
     }
 
     private bool isGrounded() => characterController.isGrounded;
-
-    private void Abilitys()
-    {
-        switch(SelectedCharacter)
-        {
-            case "Cowgirl":
-                CowgirlAbility();
-                break;
-            case "Outlaw":
-                OutlawAbility();
-                break;
-            case "Prospector":
-                ProspectorAbility();
-                break;
-            case "Barkeeper":
-                BarkeeperAbility();
-                break;
-        }
-    }
-
-    private void CowgirlAbility()
-    {
-
-    }
-
-    private void OutlawAbility()
-    {
-
-    }
-
-    private void ProspectorAbility()
-    {
-
-    }
-
-    private void BarkeeperAbility()
-    {
-
-    }
 
     [Serializable]
     public struct Movement
