@@ -186,19 +186,26 @@ public class PlayerMovement : MonoBehaviour
 
     public void jump(InputAction.CallbackContext context)
     {
-        if (!context.started) return;
-        if (!isGrounded() && numberofJumps >= maxJumps) return;
-        if (numberofJumps == 0)
+        if(isSliding == true)
         {
-            StartCoroutine(resetJumps());
+            return;
         }
+        else
+        {
+            if (!context.started) return;
+            if (!isGrounded() && numberofJumps >= maxJumps) return;
+            if (numberofJumps == 0)
+            {
+                StartCoroutine(resetJumps());
+            }
 
-        numberofJumps++;
-      
-        //velocity = jumpPower;
-        AddImpulse(transform.up * jumpPower * mass);
-        PhysVel -= new Vector3(0, PhysVel.y, 0);
-        Debug.Log("IsJumping");
+            numberofJumps++;
+
+            //velocity = jumpPower;
+            AddImpulse(transform.up * jumpPower * mass);
+            PhysVel -= new Vector3(0, PhysVel.y, 0);
+            Debug.Log("IsJumping");
+        }
        
     }
 
