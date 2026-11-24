@@ -176,11 +176,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerMovement
   model: {fileID: 8523599871761475185}
-  SelectedPlayer: 
+  SelectedCharacter: 
   gravity: -9.81
   gravityMultiplier: 1
   velocity: 0
-  jumpPower: 5
+  jumpPower: 3
   maxJumps: 2
   speed: 5
   movement:

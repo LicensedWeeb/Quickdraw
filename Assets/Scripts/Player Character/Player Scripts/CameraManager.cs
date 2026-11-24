@@ -13,22 +13,21 @@ public class CameraManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (frontPlayer == null && players[0].refrence != null)
+        if (frontPlayer == null && players.Count > 0)
         {
             frontPlayer = players[0].refrence;
         }
-        else
+        else if(players.Count > 0)
         {
-            for (int i = 0; i < players.Count; i++)
+            for (int i = 0; i < players.Count; ++i)
             {
                 if (players[i].refrence.transform.position.x > frontPlayer.transform.position.x)
                 {
                     frontPlayer = players[i].refrence;
                 }
             }
+            cam.Follow = frontPlayer.transform;
         }
-
-        cam.Follow = frontPlayer.transform;
     }
 
     public void AddPlayer(GameObject passedPlayer)
