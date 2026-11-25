@@ -44,7 +44,10 @@ public class PlayerMovement : MonoBehaviour
     [Header ("Slide Variables")]
     [SerializeField] private float slideSpeed = 3f;
     [SerializeField] private float maxSlideTime = 1f;
-    [SerializeField] private float slideTimer = 0f;
+    private float slideTimer = 0f;
+    [SerializeField] private float slideCooldown = 0.2f;
+    private float slideCooldownTimer = 0f;
+
     [SerializeField] private Transform playerObj;
     private bool isSliding;
     public float slideYScale = 0.5f;
@@ -119,9 +122,16 @@ public class PlayerMovement : MonoBehaviour
                 isSliding = false;
                 slideTimer = 0f;
                 playerObj.localScale = new Vector3(playerObj.localScale.x, startYScale, playerObj.localScale.z);
+                characterController.Move(transform.up * characterController.height);
+                characterController.height *= 2;
+                slideCooldownTimer = slideCooldown;
                 Debug.Log("Stop Sliding");
 
             }
+        }
+        else if(slideCooldownTimer > 0.0f)
+        {
+            slideCooldownTimer -= Time.deltaTime;
         }
 
         if (isGrappling == true)
@@ -218,20 +228,17 @@ public class PlayerMovement : MonoBehaviour
     {
         if (!context.started) return;
         Debug.Log("Sliding");
-        isSliding = true;
 
 
-        if (context.started)
+        if (context.started && slideCooldownTimer <= 0.0f && slideTimer < maxSlideTime && isGrounded())
         {
-            
-            if (slideTimer < maxSlideTime)
-            { 
-                playerObj.localScale = new Vector3(playerObj.localScale.x, slideYScale, playerObj.localScale.z);
-                characterController.Move(direction * movement.currentSpeed * slideSpeed * Time.deltaTime);
-               
-            }
- 
+            isSliding = true;
+            playerObj.localScale = new Vector3(playerObj.localScale.x, slideYScale, playerObj.localScale.z);
+            characterController.height *= 0.5f;
+            characterController.Move(-transform.up * characterController.height);
+            characterController.Move(direction * movement.currentSpeed * slideSpeed * Time.deltaTime);
         }
+ 
 
     }
 
@@ -333,7 +340,7 @@ public class PlayerMovement : MonoBehaviour
     }
 
 
-    private bool isGrounded() => characterController.isGrounded;
+    public bool isGrounded() => characterController.isGrounded;
 
     [Serializable]
     public struct Movement
