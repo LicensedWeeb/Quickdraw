@@ -98,6 +98,8 @@ public class PlayerMovement : MonoBehaviour
             invMass = 1/mass;
         }
         SelectedCharacter = "Cowgirl";
+        startYScale = playerObj.localScale.y;
+        slideYScale = playerObj.localScale.y * 0.5f;
     }
     private void Update()
     {
