@@ -70,7 +70,6 @@ public class CharacterSelect : MonoBehaviour
             else
             {
                 Time.timeScale = 1f;
-                SceneManager.LoadScene("Level 1");
                 selectUI.SetActive(false);
                 
             }
