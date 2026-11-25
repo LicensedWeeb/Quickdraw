@@ -122,6 +122,8 @@ public class PlayerMovement : MonoBehaviour
                 isSliding = false;
                 slideTimer = 0f;
                 playerObj.localScale = new Vector3(playerObj.localScale.x, startYScale, playerObj.localScale.z);
+                characterController.Move(transform.up * characterController.height);
+                characterController.height *= 2;
                 slideCooldownTimer = slideCooldown;
                 Debug.Log("Stop Sliding");
 
@@ -228,10 +230,12 @@ public class PlayerMovement : MonoBehaviour
         Debug.Log("Sliding");
 
 
-        if (context.started && slideCooldownTimer <= 0.0f && slideTimer < maxSlideTime)
+        if (context.started && slideCooldownTimer <= 0.0f && slideTimer < maxSlideTime && isGrounded())
         {
             isSliding = true;
             playerObj.localScale = new Vector3(playerObj.localScale.x, slideYScale, playerObj.localScale.z);
+            characterController.height *= 0.5f;
+            characterController.Move(-transform.up * characterController.height);
             characterController.Move(direction * movement.currentSpeed * slideSpeed * Time.deltaTime);
         }
  

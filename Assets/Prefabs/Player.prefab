@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 7029749897566719806}
   - component: {fileID: 3067973859026568671}
   - component: {fileID: 6412245863665564596}
+  - component: {fileID: 822492279386560498}
   m_Layer: 7
   m_Name: PlayerOBJ
   m_TagString: Untagged
@@ -224,6 +225,29 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!136 &822492279386560498
+CapsuleCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1622349095918031128}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 0.5000001
+  m_Height: 2
+  m_Direction: 1
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &7372480515013230141
 GameObject:
   m_ObjectHideFlags: 0
@@ -417,7 +441,7 @@ MonoBehaviour:
     currentSpeed: 0
   slideSpeed: 3
   maxSlideTime: 1
-  slideTimer: 0
+  slideCooldown: 1
   playerObj: {fileID: 6548471595299457463}
   slideYScale: 0.5
   maxGrappleDistance: 100
@@ -502,7 +526,7 @@ CapsuleCollider:
   m_LayerOverridePriority: 0
   m_IsTrigger: 1
   m_ProvidesContacts: 0
-  m_Enabled: 1
+  m_Enabled: 0
   serializedVersion: 2
   m_Radius: 0.5
   m_Height: 2
