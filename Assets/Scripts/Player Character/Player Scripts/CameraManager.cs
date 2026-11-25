@@ -16,6 +16,7 @@ public class CameraManager : MonoBehaviour
         if (players.Count < 1)
             return;
         player swappingPlayer;
+
         for (int i = 0; i < players.Count; ++i)
         {
             // Added -1 so it doesn't go to last element as it already does thrpough + 1
@@ -44,6 +45,7 @@ public class CameraManager : MonoBehaviour
         player newPlayer = new player(passedPlayer, 0);
         players.Add(newPlayer);
     }
+
     public player FindPlayer(int placement)
     {
         for (int i = 0; i < players.Count; ++i)
@@ -55,6 +57,7 @@ public class CameraManager : MonoBehaviour
         }
         return new player();
     }
+
     public player FindPlayer(GameObject Player)
     {
         for (int i = 0; i < players.Count; ++i)
