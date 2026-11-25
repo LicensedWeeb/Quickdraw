@@ -5,7 +5,7 @@ using UnityEngine.InputSystem;
 public class PlayerPowerups : MonoBehaviour
 {
     // Start is called once before the first execution of Update after the MonoBehaviour is created
-    GameObject powerupObj;
+    [HideInInspector] public GameObject powerupObj;
     [SerializeField] private GameObject goldenNuggetPrefab;
     [SerializeField] private GameObject quickDrawPrefab;
     [SerializeField] private GameObject slowDrawPrefab;
@@ -22,15 +22,15 @@ public class PlayerPowerups : MonoBehaviour
     [SerializeField] private float quickDrawForce = 6.0f;
     [SerializeField] private float dashForce = 6.0f;
 
-
-
-    Rigidbody body;
+    PlayerMovement body;
+    CameraManager cameraManager;
 
 
 
     void Start()
     {
-        body = GetComponent<Rigidbody>();
+        body = GetComponent<PlayerMovement>();
+        cameraManager = GameObject.Find("CameraManager").GetComponent<CameraManager>();
     }
 
     public void UseAbility(InputAction.CallbackContext context)
@@ -45,12 +45,12 @@ public class PlayerPowerups : MonoBehaviour
             }
             else if (powerupObj == quickDrawPrefab)
             {
-                body.AddForce(Vector3.Normalize(-transform.forward - transform.up) * quickDrawForce, ForceMode.Impulse);
+                body.AddImpulse(Vector3.Normalize(-transform.forward - transform.up) * quickDrawForce * body.mass);
                 powerupObj = null;
             }
             else if (powerupObj == dashPrefab)
             {
-                body.AddForce(transform.forward * dashForce, ForceMode.Impulse);
+                body.AddImpulse(transform.forward * dashForce * body.mass); // Might need to just make this 
                 powerupObj = null;
             }
             else if (powerupObj == slowDrawPrefab)
@@ -98,11 +98,16 @@ public class PlayerPowerups : MonoBehaviour
             }
             else if (lockOnTimer <= 0.0f)
             {
-                isLockingOn = false;
-                ShootBullet(Vector3.zero);  // Need to integrate placement system to get closest player
+                isLockingOn = false;    // Shouldn't work with 
+                int placementAhead = cameraManager.FindPlayer(gameObject).placement - 1;
+                if (placementAhead > 0)
+                    ShootBullet(cameraManager.FindPlayer(placementAhead).reference.transform.position); 
             }
         }
        
     }
+    private void OnDestroy()
+    {
+        cameraManager.players.Remove(cameraManager.FindPlayer(gameObject));
+    }
 }
-

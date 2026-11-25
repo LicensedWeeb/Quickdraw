@@ -1,62 +1,77 @@
 using NUnit.Framework.Internal;
 using System;
 using Unity.Mathematics;
+using UnityEditor;
 using UnityEngine;
 [Serializable] public struct RandomItemSettings
 {
     RandomItemSettings(GameObject Item, int Chance)
     {
-        this.Item = Item;
-        this.ChanceToGet = Chance;
+        this.item = Item;
+        this.chanceToGet = Chance;
     }
-    public GameObject Item;
-    public int ChanceToGet;
+    public GameObject item;
+    public int chanceToGet;
 }
 [Serializable]
 public struct PlacementSetting
 {
-    int Placement;
-    RandomItemSettings[] ItemOptions;
+    public int placement;
+    public RandomItemSettings[] itemOptions;
 }
 public class GenerateRandomItem : MonoBehaviour
 {
-    [SerializeField] PlacementSetting[] PlacementSettings;
-    private RandomItemSettings[] ItemArray = new RandomItemSettings[] { };
-    [SerializeField] private GameObject PlayerPrefab;
+    [SerializeField] PlacementSetting[] placementSettings;
+    [SerializeField] private GameObject playerPrefab;
     int ItemChanceCount = 0;
-    [SerializeField] private GameObject Camera;
-    CameraManager CameraScript;
+    CameraManager cameraScript;
     
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        CameraScript = Camera.GetComponent<CameraManager>();
-        for (int i = 0; i < ItemArray.Length; ++i)
-        {
-            ItemChanceCount += ItemArray[i].ChanceToGet;
-        }
+        cameraScript = GameObject.Find("CameraManager").GetComponent<CameraManager>();
+
     }
 
     private void OnTriggerEnter(Collider other)
     {
-        if(other.CompareTag("Player"))
+        if (other.gameObject.CompareTag("Player"))
         {
-            PlayerMovement player = other.GetComponent<PlayerMovement>();
-            
-            if(player != null)
+            if (placementSettings.Length < 1)
+                return;
+            PlacementSetting itemArray = new PlacementSetting();
+            CameraManager.player CurrentPlayer = cameraScript.FindPlayer(other.gameObject);
+            itemArray.placement = 0;
+            itemArray.itemOptions = placementSettings[0].itemOptions;   // Defaults to first option
+            for(int i = 0; i < placementSettings.Length; ++i)
             {
-                int RandNum = UnityEngine.Random.Range(0, ItemChanceCount + 1); 
-                for(int i = 0; i < ItemArray.Length; ++i)
+                if (placementSettings[i].placement == CurrentPlayer.placement)
                 {
-                   RandNum -= ItemArray[i].ChanceToGet;
+                    itemArray.itemOptions = placementSettings[i].itemOptions;
+                    itemArray.placement = placementSettings[i].placement;
+                }
+            }
+            for (int i = 0; i < itemArray.itemOptions.Length; ++i)
+            {
+                ItemChanceCount += itemArray.itemOptions[i].chanceToGet;
+            }
+
+            PlayerPowerups playerPowerups = other.gameObject.GetComponent<PlayerPowerups>();
+            
+            if(playerPowerups != null)
+            {
+                int RandNum = UnityEngine.Random.Range(0, ItemChanceCount); 
+                for(int i = 0; i < itemArray.itemOptions.Length; ++i)
+                {
+                   RandNum -= itemArray.itemOptions[i].chanceToGet;
                     if(RandNum <= 0)
                     {
-                        RandNum = i;    // Replace with setting player item
+                        playerPowerups.powerupObj = itemArray.itemOptions[i].item;  // Moved this here to avoid issues with
                         break;
                     }   
                 }
-                
             }
+            ItemChanceCount = 0;    // Forgot to reset item chance count
         }
     }
 

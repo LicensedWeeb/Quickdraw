@@ -1,3 +1,4 @@
+using NUnit.Framework;
 using System;
 using System.Collections;
 using System.ComponentModel.Design;
@@ -40,12 +41,13 @@ public class PlayerMovement : MonoBehaviour
 
     [SerializeField] private Movement movement;
 
-    [SerializeField] private GameObject heldItem;
-
     [Header ("Slide Variables")]
     [SerializeField] private float slideSpeed = 3f;
     [SerializeField] private float maxSlideTime = 1f;
-    [SerializeField] private float slideTimer = 0f;
+    private float slideTimer = 0f;
+    [SerializeField] private float slideCooldown = 0.2f;
+    private float slideCooldownTimer = 0f;
+
     [SerializeField] private Transform playerObj;
     private bool isSliding;
     public float slideYScale = 0.5f;
@@ -72,9 +74,18 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private float grappleVelocity;
 
     [Header("Stun")]
-    public bool isStunned;
-    public float stunTimer;
-    public float stunTime;
+    [HideInInspector] public bool isStunned = false;
+    [HideInInspector] public float stunTimer;
+    public float stunTime = 1.0f;
+
+
+    [Header("Physics Integration")]
+    private Vector3 PhysVel = Vector3.zero;
+    private Vector3 PhysAccel = Vector3.zero;
+    private Vector3 PhysImpulse = Vector3.zero;
+    public float mass = 2;
+    private float invMass = 0;
+    [SerializeField] private float dragCoeff = 0.5f;
 
     private void Awake()
     {
@@ -82,12 +93,21 @@ public class PlayerMovement : MonoBehaviour
         cameraManager = GameObject.Find("CameraManager").GetComponent<CameraManager>();
 
         cameraManager.AddPlayer(gameObject);
+        if(mass > 0)
+        {
+            invMass = 1/mass;
+        }
         SelectedCharacter = "Cowgirl";
     }
     private void Update()
     {
         
-        applyGravity();
+        //applyGravity();
+        
+    }
+
+    void FixedUpdate()
+    {
         applyMovement();
         grappleHook(new InputAction.CallbackContext());
         if (isSliding == true)
@@ -102,12 +122,19 @@ public class PlayerMovement : MonoBehaviour
                 isSliding = false;
                 slideTimer = 0f;
                 playerObj.localScale = new Vector3(playerObj.localScale.x, startYScale, playerObj.localScale.z);
+                characterController.Move(transform.up * characterController.height);
+                characterController.height *= 2;
+                slideCooldownTimer = slideCooldown;
                 Debug.Log("Stop Sliding");
-               
+
             }
         }
+        else if(slideCooldownTimer > 0.0f)
+        {
+            slideCooldownTimer -= Time.deltaTime;
+        }
 
-        if(isGrappling == true)
+        if (isGrappling == true)
         {
             grappleTimer += Time.deltaTime;
             grappleLineRenderer.SetPosition(0, transform.position);
@@ -118,13 +145,24 @@ public class PlayerMovement : MonoBehaviour
                 isGrappling = false;
                 grappleTimer = 0f;
             }
-            
-            
+
+
         }
-
-
+        if (isStunned)
+        {
+            if (stunTimer > 0.0f)
+            {
+                stunTimer -= Time.fixedDeltaTime;
+            }
+            else if (stunTimer <= 0.0f)
+            {
+                isStunned = false;
+            }
+        }
+        AddAccel(gravity * gravityMultiplier * transform.up);
+        AddForce(PhysVel.normalized * PhysVel.magnitude * dragCoeff);
+        IntegrateVel(Time.fixedDeltaTime);
     }
-
     public void Move(InputAction.CallbackContext context)
     {
         Input = context.ReadValue <Vector2>();
@@ -149,25 +187,35 @@ public class PlayerMovement : MonoBehaviour
         }
         else
         {
-
             velocity += gravity * gravityMultiplier * Time.deltaTime;
         }
+
         direction.y = velocity;
 
     }
 
     public void jump(InputAction.CallbackContext context)
     {
-        if (!context.started) return;
-        if (!isGrounded() && numberofJumps >= maxJumps) return;
-        if (numberofJumps == 0)
+        if(isSliding == true)
         {
-            StartCoroutine(resetJumps());
+            return;
         }
+        else
+        {
+            if (!context.started) return;
+            if (!isGrounded() && numberofJumps >= maxJumps) return;
+            if (numberofJumps == 0)
+            {
+                StartCoroutine(resetJumps());
+            }
 
-        numberofJumps++;
-      
-        velocity = jumpPower;
+            numberofJumps++;
+
+            //velocity = jumpPower;
+            AddImpulse(transform.up * jumpPower * mass);
+            PhysVel -= new Vector3(0, PhysVel.y, 0);
+            Debug.Log("IsJumping");
+        }
        
     }
 
@@ -180,20 +228,17 @@ public class PlayerMovement : MonoBehaviour
     {
         if (!context.started) return;
         Debug.Log("Sliding");
-        isSliding = true;
 
 
-        if (context.started)
+        if (context.started && slideCooldownTimer <= 0.0f && slideTimer < maxSlideTime && isGrounded())
         {
-            
-            if (slideTimer < maxSlideTime)
-            { 
-                playerObj.localScale = new Vector3(playerObj.localScale.x, slideYScale, playerObj.localScale.z);
-                characterController.Move(direction * movement.currentSpeed * slideSpeed * Time.deltaTime);
-               
-            }
- 
+            isSliding = true;
+            playerObj.localScale = new Vector3(playerObj.localScale.x, slideYScale, playerObj.localScale.z);
+            characterController.height *= 0.5f;
+            characterController.Move(-transform.up * characterController.height);
+            characterController.Move(direction * movement.currentSpeed * slideSpeed * Time.deltaTime);
         }
+ 
 
     }
 
@@ -216,6 +261,41 @@ public class PlayerMovement : MonoBehaviour
        
     }
 
+    void IntegrateVel(float DeltaTime)
+      {
+           PhysVel += PhysImpulse * invMass;
+
+          Vector3 NewDisp = Vector3.zero;
+
+          PhysVel += PhysAccel * DeltaTime;
+          NewDisp = PhysVel * DeltaTime;
+
+          NewDisp = new Vector3(NewDisp.x, NewDisp.y, 0.0f).normalized * NewDisp.magnitude;
+
+          //Debug.Log(Vector3.Dot(PhysVel, transform.up));
+
+          characterController.Move(NewDisp);
+
+          if (isGrounded())
+          {
+              PhysVel = Vector3.zero; // cancels out all velocity after hitting the ground 
+          }
+
+          PhysAccel = Vector3.zero;
+          PhysImpulse = Vector3.zero;
+      }
+      public void AddAccel(Vector3 Accel)
+      {
+          PhysAccel += Accel;
+      }
+      public void AddForce(Vector3 Force)
+      {
+          PhysAccel += Force*invMass;
+      }
+      public void AddImpulse(Vector3 Impulse)
+      {
+          PhysImpulse += Impulse;
+      }
     private IEnumerator resetJumps()
     {
         yield return new WaitUntil(() => !isGrounded());
@@ -224,9 +304,7 @@ public class PlayerMovement : MonoBehaviour
         numberofJumps = 0;
     }
 
-    private bool isGrounded() => characterController.isGrounded;
-
-    private void Abilitys()
+    void Abilitys()
     {
         switch(SelectedCharacter)
         {
@@ -244,26 +322,25 @@ public class PlayerMovement : MonoBehaviour
                 break;
         }
     }
+    void CowgirlAbility()
+    {
 
-    private void CowgirlAbility()
+    }
+    void OutlawAbility()
+    {
+
+    }
+    void ProspectorAbility()
+    {
+
+    }
+    void BarkeeperAbility()
     {
 
     }
 
-    private void OutlawAbility()
-    {
 
-    }
-
-    private void ProspectorAbility()
-    {
-
-    }
-
-    private void BarkeeperAbility()
-    {
-
-    }
+    public bool isGrounded() => characterController.isGrounded;
 
     [Serializable]
     public struct Movement
